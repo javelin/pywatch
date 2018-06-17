@@ -5,9 +5,10 @@ import threading
 import time
 
 class Watcher(object):
-    def __init__(self, files=None, cmds=None, verbose=False, clear=False):
+    def __init__(self, files=None, cmds=None, callbacks=None, verbose=False, clear=False):
         self.files = []
         self.cmds = []
+        self.callbacks = []
         self.num_runs = 0
         self.mtimes = {}
         self._monitor_continously = False
@@ -17,6 +18,7 @@ class Watcher(object):
 
         if files: self.add_files(*files)
         if cmds: self.add_cmds(*cmds)
+        if callbacks: self.add_callbacks(*callbacks)
 
     def monitor(self):
         #We only want one thread, dear god
@@ -70,6 +72,8 @@ class Watcher(object):
         if self.clear:
             os.system('clear')
         [ os.system(cmd) for cmd in self.cmds ]
+        if self.verbose: print("Invoking callbacks at %s" % (datetime.datetime.now(), ))
+        [ callback() for callback in self.callbacks ]
         self.num_runs += 1
         return self.num_runs
 
@@ -97,3 +101,7 @@ class Watcher(object):
     def add_cmds(self, *cmds):
         unique_cmds = [ c for c in cmds if c not in self.cmds ]
         self.cmds = self.cmds + unique_cmds
+
+    def add_callbacks(self, *callbacks):
+        unique_callbacks = [ c for c in callbacks if c not in self.callbacks ]
+        self.callbacks = self.callbacks + unique_callbacks
