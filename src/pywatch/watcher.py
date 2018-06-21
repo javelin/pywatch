@@ -54,7 +54,10 @@ class Watcher(object):
             except OSError:
                 #The file might be right in the middle of being written so sleep
                 time.sleep(1)
-                mtime = os.stat(f).st_mtime
+                try:
+                    mtime = os.stat(f).st_mtime
+                except OSError:
+                    continue
 
             if f not in self.mtimes.keys():
                 self.mtimes[f] = mtime
